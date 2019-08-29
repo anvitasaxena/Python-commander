@@ -1,0 +1,210 @@
+import pyaudio
+import wave
+import speech_recognition as sr
+import pyttsx3
+import subprocess
+import os
+import webbrowser
+
+
+def welcome():
+    engine1 = pyttsx3.init()
+    engine1.say("Welcome, I am python commander. I will help you in opening different programs.")
+    engine1.runAndWait()
+    initSpeech()
+
+def again():
+    
+    engine3 = pyttsx3.init()
+
+    engine3.say("Do you want to open anything else?")
+
+    engine3.runAndWait()
+    
+    try:
+        with sr.Microphone() as source:
+            print("Say Something.....")
+            audio= r.listen(source)
+    except:
+        print("Your speaker is not working")
+
+    command2 =""
+
+
+    try:
+        command2 =  r.recognize_google(audio)
+    except:
+        print("Couldn't understand what you said.")
+        
+    #if command2!="":
+        
+    
+    x="yes"
+    
+    if command2==x:
+        engine3 = pyttsx3.init()
+        engine3.say("Your command is" + command2)
+        engine3.runAndWait()
+        print("Your Command :", command2.upper())
+        initSpeech()
+    else:
+        engine1 = pyttsx3.init()
+        engine1.say("Couldn't understand what you said, press the button to run the commander again")
+        engine1.runAndWait()
+        global running
+        running= False
+
+        
+        
+
+def launcher(command1):
+    
+    if "browser" in command1:
+
+        try:
+            import winreg
+        except ImportError:
+            import _winreg as winreg
+
+        handle = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+            r"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe")
+
+        num_values = winreg.QueryInfoKey(handle)[1]
+        list=[]
+        for i in range(num_values):
+            value= winreg.EnumValue(handle,i)
+            list.append((value[-2]))
+        print(list)
+        x=list[0]
+        print (x + ' %s')    
+        subprocess.call(x +' %s')
+        again()
+        
+        
+    if "note" in command1:
+
+        try:
+            import winreg
+        except ImportError:
+            import _winreg as winreg
+
+        handle = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+            r"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\onenote.exe")
+
+        num_values = winreg.QueryInfoKey(handle)[1]
+        list=[]
+        for i in range(num_values):
+            value= winreg.EnumValue(handle,i)
+            list.append((value[-2]))
+        print(list)
+        x=list[0]
+        print (x + ' %s')    
+        subprocess.call(x +' %s')
+        again()
+
+
+
+"""def discover(command):
+
+    if "open" in command:
+       
+        engine3 = pyttsx3.init()
+
+        engine3.say("Trying to open")
+
+        engine3.runAndWait()
+        
+        try:
+            with sr.Microphone() as source:
+                print("Say Something.....")
+                audio= r.listen(source)
+        except:
+            print("Your speaker is not working")
+
+        command1 =""
+
+
+        try:
+            command1=  r.recognize_google(audio)
+        except:
+            print("Couldn't understand what you said.")
+
+        engine3 = pyttsx3.init()
+        engine3.say("Your command is" + command1)
+        engine3.runAndWait()
+        print("Your Command :", command1.upper())
+    
+        if command1!= "":
+            launcher(command1)"""
+        
+
+        
+def play_audio(filename):
+    chunk=1024
+    wf= wave.open(filename,'rb')
+    pa= pyaudio.PyAudio()
+    
+    stream= pa.open(
+        format=pa.get_format_from_width(wf.getsampwidth()),
+        channels = wf.getnchannels(),
+        rate=wf.getframerate(),
+        output=True
+    )
+    
+    data_stream=wf.readframes(chunk)
+    
+    while data_stream:
+        stream.write(data_stream)
+        data_stream=wf.readframes(chunk)
+    
+    stream.close()
+    pa.terminate()
+    
+
+
+
+
+r = sr.Recognizer()
+
+running = True
+def initSpeech():
+   
+    engine1 = pyttsx3.init()
+    engine1.say("What do you want to open?")
+    engine1.runAndWait()
+    
+    print("Listening......")
+    play_audio("Desktop/BOOKS/Python and ML/audio/strings.wav")
+    try:
+        with sr.Microphone() as source:
+            print("Say Something.....")
+            audio= r.listen(source)
+    except:
+        print("Your speaker is not working")
+
+    command =""
+
+
+    try:
+        command=  r.recognize_google(audio)
+    except:
+        print("Couldn't understand what you said.")
+    if command != "":
+        engine3 = pyttsx3.init()
+        engine3.say("Your command is" + command)
+        engine3.runAndWait()
+    print("Your Command :", command.upper())
+    
+    #discover(command)
+    launcher(command)
+    
+    if command in ["quit","exit","bye","goodbye"]:
+        global running
+        engine1 = pyttsx3.init()
+        engine1.say("Terminating the program")
+        engine1.runAndWait()
+        print("Taking Exit")
+        running = False
+        
+while running==True:    
+    welcome()
